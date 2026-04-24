@@ -1,4 +1,4 @@
-﻿import { Fragment, useMemo, useState } from 'react';
+﻿import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { Risk, Finding } from '../types';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
 
@@ -37,7 +37,7 @@ export function RiskMatrix({ risks, findings }: RiskMatrixProps) {
         text
             .toLowerCase()
             .replace(/\s+/g, '-')
-            .replace(/[^a-z0-9\-]/g, '');
+            .replace(/[^a-z0-9-]/g, '');
 
     // Pre-sort findings by relevance
     const orderedFindings = useMemo(() => [...findings].sort((a, b) => b.page_relevance - a.page_relevance), [findings]);
@@ -280,10 +280,12 @@ function useCompactContext(): [boolean, (v: boolean) => void] {
         listeners.forEach(fn => fn(v));
     };
     // sync across instances
-    useMemo(() => {
+    useEffect(() => {
         const fn = (v: boolean) => setValue(v);
         listeners.add(fn);
-        return () => listeners.delete(fn);
+        return () => {
+            listeners.delete(fn);
+        };
     }, []);
     return [value, set];
 }

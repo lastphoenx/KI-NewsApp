@@ -6,6 +6,8 @@ import { ActionBoard } from './components/ActionBoard';
 import { RiskMatrix } from './components/RiskMatrix';
 import { BarChart3, Loader2 } from 'lucide-react';
 
+const tabs: Array<'timeline' | 'actions' | 'risks'> = ['timeline', 'actions', 'risks'];
+
 function App() {
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
@@ -13,22 +15,33 @@ function App() {
   const [activeTab, setActiveTab] = useState<'timeline' | 'actions' | 'risks'>('timeline');
 
   useEffect(() => {
-    loadRuns();
-  }, []);
+    let cancelled = false;
 
-  const loadRuns = async () => {
-    try {
-      const data = await api.getRuns();
-      setRuns(data);
-      if (data.length > 0) {
-        setSelectedRun(data[0]);
-      }
-    } catch (error) {
-      console.error('Failed to load runs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    api.getRuns()
+      .then((data) => {
+        if (cancelled) {
+          return;
+        }
+        setRuns(data);
+        if (data.length > 0) {
+          setSelectedRun(data[0]);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          console.error('Failed to load runs:', error);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleRunChange = async (runId: number) => {
     try {
@@ -110,10 +123,10 @@ function App() {
 
       <div className="border-b border-slate-700 px-6">
         <div className="max-w-7xl mx-auto flex gap-4">
-          {['timeline', 'actions', 'risks'].map(tab => (
+          {tabs.map(tab => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              onClick={() => setActiveTab(tab)}
               className={`px-4 py-3 font-medium transition-colors ${activeTab === tab
                 ? 'text-blue-400 border-b-2 border-blue-400'
                 : 'text-slate-400 hover:text-slate-200'

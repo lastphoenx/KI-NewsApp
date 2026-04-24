@@ -6,14 +6,14 @@ interface ActionBoardProps {
     actions: Action[];
 }
 
-export function ActionBoard({ actions }: ActionBoardProps) {
-    const grouped = {
-        high: actions.filter(a => a.priority === 'high'),
-        medium: actions.filter(a => a.priority === 'medium'),
-        low: actions.filter(a => a.priority === 'low'),
-    };
+interface ActionColumnProps {
+    title: string;
+    items: Action[];
+    color: string;
+}
 
-    const Column = ({ title, items, color }: { title: string; items: Action[]; color: string }) => (
+function Column({ title, items, color }: ActionColumnProps) {
+    return (
         <div className="flex-1 min-w-[300px]">
             <div className={`${color} text-white px-4 py-2 rounded-t-lg font-semibold flex items-center gap-2`}>
                 <CheckCircle2 className="w-5 h-5" />
@@ -52,6 +52,14 @@ export function ActionBoard({ actions }: ActionBoardProps) {
             </div>
         </div>
     );
+}
+
+export function ActionBoard({ actions }: ActionBoardProps) {
+    const grouped = {
+        high: actions.filter(a => a.priority === 'high'),
+        medium: actions.filter(a => a.priority === 'medium'),
+        low: actions.filter(a => a.priority === 'low'),
+    };
 
     return (
         <div className="space-y-4">

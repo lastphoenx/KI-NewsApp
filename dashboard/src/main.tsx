@@ -1,18 +1,18 @@
-import { StrictMode, Component, type ReactNode } from 'react'
+import { StrictMode, Component, type ErrorInfo, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
 // Simple error boundary to surface runtime errors instead of a white screen
-class ErrorBoundary extends Component<{ children: ReactNode }, { error: any }> {
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: unknown }> {
   constructor(props: { children: ReactNode }) {
     super(props)
     this.state = { error: null }
   }
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(error: Error) {
     return { error }
   }
-  componentDidCatch(error: any, info: any) {
+  componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('React render error:', error, info)
   }
   render() {
